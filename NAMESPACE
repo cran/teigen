@@ -1,1 +1,6 @@
 export(teigen)
+export(teigen.parallel)
+import(parallel)
+S3method(plot, teigen)
+S3method(summary, teigen)
+S3method(print, teigen)

@@ -2,14 +2,15 @@
 \alias{teigen}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-teigen: Model-based clustering and classification with the multivariate t-distribution
+teigen: Function for model-based clustering and classification with the multivariate t-distribution
 }
 \description{
 Fits multivariate t-distribution mixture models (with eigen-decomposed covariance structure) to the given data underneath a clustering paradigm (default) or classification paradigm (by giving either training index or percentage of data taken to be known).
 }
 \usage{
 teigen(x, Gs = 1:9, models = "all", init ="kmeans", scale = TRUE, dfstart = 50, 
-      clas = 0, known= NULL, training = NULL, gauss = FALSE, dfupdate = TRUE, eps = 0.1)}
+      clas = 0, known= NULL, training = NULL, gauss = FALSE, dfupdate = TRUE, 
+      eps = c(0.001, 0.1), verbose=TRUE, anneal=NULL, maxit=c(20,1000))}
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{
@@ -22,15 +23,15 @@ A number or vector indicating the number of groups to fit. Default is 1-9.
 }
   \item{models}{
 %%     ~~Describe \code{models} here~~
-A character vector giving the models to fit. Alternatively, \code{"all"} runs all tEIGEN models (default), \code{"dfunconstrained"} runs all the unconstrained degrees of freedom models, \code{"dfconstrained"} runs all the constrained degrees of freedom models,  \code{"mclust"} approximates MCLUST models and restricts degrees of freedom estimation to approximately normal, \code{"gaussian"} is similar but includes two further mixture models than MCLUST, and finally \code{"univariate"} runs the univariate models.
+A character vector giving the models to fit. See details for a comprehensive list of choices.
 }
   \item{init}{
 %%     ~~Describe \code{init} here~~
-A list of initializing classification of the form that \code{init[[G]]} contains the initializing vector for all G considered. Alternatively, the user can use a character string indicating initialization method. Currently the user can choose from \code{"kmeans"} (default), `hard' random - \code{"hard"}, `soft' random - \code{"soft"}, and \code{"uniform"} (classification only).
+A list of initializing classification of the form that \code{init[[G]]} contains the initializing vector for all G considered (see example below). Alternatively, the user can use a character string indicating initialization method. Currently the user can choose from \code{"kmeans"} (default), `hard' random - \code{"hard"}, `soft' random - \code{"soft"}, and \code{"uniform"} (classification only).
 }
   \item{scale}{
 %%     ~~Describe \code{scale} here~~
-Logical indicating whether or not the function should scale the data. Default is \code{TRUE} and is the prescribed method.
+Logical indicating whether or not the function should scale the data. Default is \code{TRUE} and is the prescribed method --- tEIGEN models are not scale invariant.
 }
   \item{dfstart}{
 %%     ~~Describe \code{dfstart} here~~
@@ -49,7 +50,7 @@ Optional indexing vector for the observations whose classification is taken to b
 A vector of known classifications that can be numeric or character - optional for clustering, necessary for classification. Must be the same length as the number of rows in the data set. If using in a true classification sense, give samples with unknown classification the value \code{NA} within \code{known} (see training example below).
 }
   \item{gauss}{
-Logical indicating if the algorithm should approximate the gaussian distribution. If \code{models="mclust"} then \code{gauss=TRUE} is forced.
+Logical indicating if the algorithm should use the gaussian distribution. If \code{models="mclust"} or \code{"gaussian"} then \code{gauss=TRUE} is forced.
 }
   \item{dfupdate}{
 %%     ~~Describe \code{dfupdate} here~~
@@ -57,12 +58,42 @@ Logical indicating whether or not the degrees of freedom should be estimated. If
 }
   \item{eps}{
 %%     ~~Describe \code{eps} here~~
-This value is the tolerance for the convergence criterion. Convergence is based on Aitken's acceleration; see cited papers for more information.
+Vector (of size 2) giving tolerance values for the convergence criterion. First value is the tolerance level for iterated M-steps. Second value is tolerance for the EM algorithm: convergence is based on Aitken's acceleration, see cited papers for more information.
+}
+  \item{verbose}{
+%%     ~~Describe \code{verbose} here~~
+Logical indicating whether the running output should be displayed. What is displayed depends on the width of the R window. With a width of 80 or larger: time run, estimated time remaining, percent complete are all displayed.
+}
+\item{anneal}{
+%%     ~~Describe \code{anneal} here~~
+Optional vector giving the deterministic annealing schedule.
+}
+\item{maxit}{
+%%     ~~Describe \code{maxit} here~~
+Vector (of size 2) giving maximum iteration number for the iterated M-steps and EM algorithm, respectively. A warning is displayed if either of these maximums are met.
 }
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
-Note that for G=1, several models are equivalent (for example, UUUU and CCCC). Thus, for G=1 only one model from each set of equivalent models will be run.
+Model specification (via the \code{models} argument) follows either the nomenclature discussed in Andrews and McNicholas (2012), or via the nomenclature popularized in other packages. In both cases, the nomenclature refers to the decomposition and constraints on the covariance matrix: \deqn{\Sigma_g = \lambda_g D_g A_g D_g'}
+
+The nomenclature from Andrews and McNicholas (2012) gives four letters, each letter referring to (in order) \eqn{\lambda}, D, A, and the degrees of freedom. Possible letters are \code{"U"} for unconstrained, \code{"C"} for constrained (across groups), and \code{"I"} for when the parameter is replaced by the appropriately sized identity matrix (where applicable). As an example, the string \code{"UICC"} would refer to the model where \eqn{\Sigma_g = \lambda_g A} with degrees of freedom held equal across groups.
+
+The alternative nomenclature describes (in order) the volume (\eqn{\lambda}), shape (A), orientation (D), and degrees of freedom in terms of \code{"V"}ariable, \code{"E"}qual, or the \code{"I"}dentity matrix. The example model discussed in the previous paragraph would then be called by \code{"VEIE"}.
+
+Possible univariate models are \code{c("univUU", "univUC", "univCU", "univCC")} where the first capital letter describes \code{"U"}nconstrained or \code{"C"}onstrained variance and the second capital letter refers to the degrees of freedom. Once again, \code{"V"}ariable or \code{"E"}qual can replace U and C, but this time the orders match between the nomenclatures.
+
+As many models as desired can be selected and ran via the vector supplied to \code{models}. More commonly, subsets can be called by the following character strings: 
+	\code{"all"} runs all 28 tEIGEN models (default),
+	\code{"dfunconstrained"} runs the 14 unconstrained degrees of freedom models, 
+	\code{"dfconstrained"} runs the 14 constrained degrees of freedom models,  
+	\code{"mclust"} runs the 10 MCLUST models using the multivariate Gaussian distribution rather than the multivariate t,
+	\code{"gaussian"} is similar but includes four further mixture models than MCLUST,
+	\code{"univariate"} runs the univariate models - will automatically be called if one of the previous shortcuts is used on univariate data. 
+	
+Note that adding \code{"alt"} to the beginning of those previously mentioned characters strings will run the same models, but return results with the V-E-I nomenclature.
+
+Also note that for G=1, several models are equivalent (for example, UUUU and CCCC). Thus, for G=1 only one model from each set of equivalent models will be run.
 }
 \value{
 %%  ~Describe the value returned
@@ -71,26 +102,41 @@ Note that for G=1, several models are equivalent (for example, UUUU and CCCC). T
 %%  \item{comp2 }{Description of 'comp2'}
 %% ...
 \item{x}{Data used for clustering/classification.}
+
 \item{index}{Indexing vector giving observations taken to be known (only available when \code{clas} is set greater than 0 or \code{training} is given). }
+
 \item{classification}{Vector of group classifications as determined by the BIC.}
+
+\item{bic}{BIC of the best fitted model.}
+
+\item{modelname}{Name of the best model according to the BIC.}
+
 \item{allbic}{Matrix of BIC values according to model and G. A value of -Inf is returned when the model did not converge. }
+
 \item{bestmodel}{Character string giving best model (BIC) details.}
+
 \item{G}{Value corresponding to the number of components chosen by the BIC. }
+
 \item{tab}{Classification table for BIC model (only available when \code{known} is given). When classification is used the ``known'' observations are left out of the table. }
+
 \item{fuzzy}{The fuzzy clustering matrix for the model selected by the BIC. }
+
 \item{logl}{The log-likelihood corresponding to the model with the best BIC. }
-\item{parameters}{List containing the fitted parameters: \code{mean} - matrix of means where the rows correspond to the component and the columns are the variables; \code{sigma} - array of covariance matrices (multivariate) or variances (univariate); \code{lambda} - vector of scale parameters, or constants of proportionality; \code{d} - eigenvectors, or orientation matrices; \code{a} - diagonal matrix proportional to eigenvalues, or shape matrices; \code{df} - vector containing the degrees of freedom for each component. }
+
+\item{parameters}{List containing the fitted parameters: \code{mean} - matrix of means where the rows correspond to the component and the columns are the variables; \code{sigma} - array of covariance matrices (multivariate) or variances (univariate); \code{lambda} - vector of scale parameters, or constants of proportionality; \code{d} - eigenvectors, or orientation matrices; \code{a} - diagonal matrix proportional to eigenvalues, or shape matrices; \code{df} - vector containing the degrees of freedom for each component; \code{weights} - matrix of the expected value of the characteristic weights (used as an estimation of `outlierness' by \code{\link{plot.teigen}}). }
+
 \item{iclresults}{List containing all the previous outputs, except \code{x} and \code{index}, pertaining to the model chosen by the best ICL (all under the same name except \code{allicl} and \code{icl} are the equivalent of \code{allbic} and \code{bic}, respectively).}
+
+\item{info}{List containing a few of the original user inputs, for use by other dedicated functions of the \code{teigen} class.}
 }
 \references{
-Andrews JL and McNicholas PD. ``Model-based clustering, classification, and discriminant analysis with the multivariate \emph{t}-distribution: The \emph{t}EIGEN family'' \emph{Statistics and Computing}. To appear: http://dx.doi.org/10.1007/s11222-011-9272-x
+Andrews JL and McNicholas PD. ``Model-based clustering, classification, and discriminant analysis with the multivariate \emph{t}-distribution: The \emph{t}EIGEN family'' \emph{Statistics and Computing} 22(5), 1021--1029. 
 
 Andrews JL, McNicholas PD, and Subedi S (2011) ``Model-based classification via mixtures of multivariate t-distributions'' \emph{Computational Statistics and Data Analysis} 55, 520--529.
 }
 \author{
 %%  ~~who you are~~
-Jeffrey L. Andrews \code{<andrewsj@uoguelph.ca>} 
-with contributions from Paul D. McNicholas
+Jeffrey L. Andrews, Paul D. McNicholas
 }
 
 
@@ -100,24 +146,32 @@ with contributions from Paul D. McNicholas
 See package manual \code{\link{tEIGEN}}
 }
 \examples{
+###Note that only one model is run for each example
+###in order to reduce computation time
 
-data(faithful)
+#Clustering old faithful data with hard random start
+tfaith <- teigen(faithful, models="UUUU", Gs=1:3, init="hard")
+plot(tfaith)
+summary(tfaith)
 
-#Clustering old faithful data with tEIGEN
-tfaith <- teigen(faithful, Gs=1:3, init="disc")
-plot(faithful, col=c("blue","green","red")[tfaith$clas])
-
-#Clustering old faithful data (MCLUST approximation)
-mfaith <- teigen(faithful, Gs=1:3, init="disc", models="mclust")
-plot(faithful, col=c("blue","green","red")[mfaith$clas])
+#Clustering old faithful with hierarchical starting values
+initial_list <- list()
+clustree <- hclust(dist(faithful))
+for(i in 1:3){
+	initial_list[[i]] <- cutree(clustree,i)
+}
+tfaith <- teigen(faithful, models="CUCU", Gs=1:3, init=initial_list)
+print(tfaith)
 
 #Classification with the iris data set via percentage of data taken to have known membership
-tiris <- teigen(iris[,-5],init="uniform",clas=50,known=iris[,5])
+tiris <- teigen(iris[,-5], models="CUUU", init="uniform",clas=50,known=iris[,5])
 tiris$tab
 
 #Classification with the iris data set via training set
 irisknown <- iris[,5]
 #Introducing NAs is not required; this is to illustrate a `true' classification scenario
 irisknown[134:150] <- NA
-triris <- teigen(iris[,-5],init="uniform",known=irisknown,training=1:133)
+triris <- teigen(iris[,-5], models="CUUU", init="uniform", known=irisknown, training=1:133)
 }
+
+

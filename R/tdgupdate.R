@@ -1,5 +1,5 @@
 tdgupdate <-
-function(p,G,mod,sg,lambdag,ng,ag,submod13){
+function(p,G,mod,sg,lambdag,ng,ag,submod13, dg, flipswitch=NULL){
 	dg <- array(0, dim=c(p, p, G))
 	negdet <- FALSE
 	if(any(submod13==c("CUC","UUC"))){
@@ -40,7 +40,44 @@ function(p,G,mod,sg,lambdag,ng,ag,submod13){
 				}
 			}
 			else{
-				dg[,,] <- diag(p)
+				if(any(submod13==c("UCU","CCU"))){
+					if(flipswitch){
+					#MM1
+						dum <- matrix(0,p,p)
+						ainv <- dum
+						for(g in 1:G){
+							wg <- ng[g]*sg[,,g]
+							wk <- eigen(wg, symmetric=TRUE, only.values=TRUE)$values[1]
+							diag(ainv) <- diag(1/(lambdag[g]*ag[,,g]))
+							dum <- dum + ainv %*% t(dg[,,g]) %*% wg - wk*ainv %*% t(dg[,,g])
+						}
+						#print(dum)
+						if(all(is.finite(dum))){
+							svdum <- svd(dum)
+							dg[,,] <- svdum$v %*% t(svdum$u)
+						}
+						else{
+							negdet <- TRUE
+						}
+					}
+					else{
+					#MM2
+						dum <- matrix(0,p,p)
+						ainv <- dum
+						for(g in 1:G){
+							wg <- ng[g]*sg[,,g]
+							diag(ainv) <- diag(1/(lambdag[g]*ag[,,g]))
+							#dum <- dum + wg %*% dg[,,g] %*% ainv  - (lambdag[g]*ag[p,p,g])*wg %*% dg[,,g]
+							dum <- dum + wg %*% dg[,,g] %*% ainv  - (max(ainv))*wg %*% dg[,,g]
+						}
+						svdum <- svd(dum)
+						dg[,,] <- svdum$v %*% t(svdum$u)
+					
+					}
+				}
+				else{
+					dg[,,] <- diag(p)
+				}
 			}
 		}
 	}

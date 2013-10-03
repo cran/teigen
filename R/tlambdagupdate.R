@@ -53,6 +53,16 @@ function(G,mod,sg,dg,ag,p,n,ng,submod13){
 			lambdag[g] <- sum(diag(sg[,,g] %*% diag(1/diag(ag[,,g]))))/p
 		}
 	}
+	if(submod13=="CCU"){
+		for(g in 1:G){
+			lambdag <- lambdag + sum(diag(ng[g]*sg[,,g] %*% dg[,,g] %*% diag(1/diag(ag[,,g])) %*% t(dg[,,g])))/(n*p)
+		}
+	}
+	if(submod13=="UCU"){
+		for(g in 1:G){
+			lambdag[g] <- sum(diag(sg[,,g] %*% dg[,,g] %*% diag(1/diag(ag[,,g])) %*% t(dg[,,g])))/p
+		}
+	}
 	lambdag
 }
 

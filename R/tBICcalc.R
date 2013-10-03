@@ -57,7 +57,7 @@ function(conv,G,p,mod,logl,n,gauss,univar,submod13){
 			freepar <- freepar + p*(p+1)/2 + (G - 1)*(p-1)
 		}
 		if(submod13=="UCU"){
-			freepar <- freepar + p*(p+1)/2 - (G - 1)*p
+			freepar <- freepar + p*(p+1)/2 + (G - 1)*p
 		}
 		if(submod13=="UIC"){
 			freepar <- freepar + p + G-1

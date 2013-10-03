@@ -7,7 +7,7 @@ function(p,G,mod,sg,lambdag,ng,n,dg,submod13){
 		for(g in 1:G){
 			diag(omegag) <- diag(omegag) + eigen(ng[g]*sg[,,g])$values
 		}
-			ag[,,] <- omegag/(det(omegag)^(1/p))
+		ag[,,] <- omegag/(det(omegag)^(1/p))
 	}
 	if(submod13=="CUU"){
 		for(g in 1:G){
@@ -26,6 +26,18 @@ function(p,G,mod,sg,lambdag,ng,n,dg,submod13){
 	}
 	if(substring(mod,3,3)=="I"){
 			ag[,,] <- diag(p)
+	}
+	if(submod13=="CCU"){
+		for(g in 1:G){
+			dwd <- diag(t(dg[,,g]) %*% (ng[g]*sg[,,g]) %*% dg[,,g])
+			diag(ag[,,g]) <- dwd/(prod(dwd)^(1/p))
+		}
+	}
+	if(submod13=="UCU"){
+		for(g in 1:G){
+			dwd <- diag(t(dg[,,g]) %*% (ng[g]*sg[,,g]) %*% dg[,,g])
+			diag(ag[,,g]) <- dwd/(prod(dwd)^(1/p))
+		}
 	}
 	#IP
 	if(any(submod13==c("UCC","UUC"))){
