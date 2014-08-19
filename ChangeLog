@@ -1,0 +1,17 @@
+teigen version 2.0.7 2014-08-19:
+
+- Argument dfupdate now takes characters "approx" or "numeric", or logicals TRUE or FALSE (see next two changes)
+- Closed-form approximation of degrees of freedom added dfupdate="approx"
+- Increased efficiency of numeric estimation of degrees of freedom dfupdate="numeric" or TRUE (for back compatibility)
+- Univariate plots for objects of teigen class improved
+- More error catches added
+- Various smaller efficiency and bug fixing
+
+
+teigen version 2.0.1 2013-10-03:
+
+- Function teigen.parallel added for parallelized model fitting
+- Argument verbose added which controls the new estimated time remaining output
+- Class specific plotting, summary, printing added
+- Argument maxit added to control the number of iterations/cycles
+- Argument eps added to control tolerance levels for convergence of iterations/cycles

@@ -1,49 +1,17 @@
 teigen <-
-function(x, Gs=1:9, models="all", init="kmeans", scale=TRUE, dfstart=50, clas=0, known=NULL, training=NULL, gauss=FALSE, dfupdate=TRUE, eps=c(0.001,0.1), verbose=TRUE, anneal=NULL, maxit=c(20,1000)){
+function(x, Gs=1:9, models="all", init="kmeans", scale=TRUE, dfstart=50, clas=0, known=NULL, training=NULL, gauss=FALSE, dfupdate="approx", eps=c(0.001,0.1), verbose=TRUE, anneal=NULL, maxit=c(20,1000)){
 	if(verbose){
-		curwidth <- getOption("width")
-		if(curwidth>=80){
-			cat("Time taken:", format("???", width=6, justify="right"), "  |  (Approx) remaining:", format("???", width=6, justify="right"), "  |  " ,format("???", width=4, justify="right"), "% complete", "\r", sep="")
-		}
-		else{
-			if(curwidth>=50){
-				cat("(Approx) remaining:", format("???", width=6, justify="right"), "  |  " ,format("???", width=4, justify="right"), "% complete", "\r", sep="")
-			}
-			else{
-				if(curwidth>=16){
-					cat(format("0", width=4, justify="right"), "% complete", "\r", sep="")
-				}
-			}
-		}
-		flush.console()
+		estimateTime("init")
 	}
+  if(class(init)!="list" && !(init %in% c("kmeans", "hard", "disc", "cont", "soft", "uniform"))){
+    stop("'init' must be one of 'kmeans', 'hard', 'soft', 'uniform' or a list. See ?teigen.")
+  }
+	if(!(dfupdate %in% c("approx", "numeric", FALSE, TRUE))){
+	  stop("'dfupdate' must be either 'approx', 'numeric', or FALSE. See ?teigen.")
+	}
+  teigenModels <- modelgen()
 	alternatenames <- FALSE
 	origx <- x
-	teigenModels <- list()
-	teigenModels[["altnames"]] <- c("VVVV", "VVVE","EEVV", "EEVE","EVVV", "EVVE","EEEV","EEEE",
-										"EVIV", "EVIE","EEIV", "EEIE","VIIV","VIIE","EIIV","EIIE",
-										"VVIV","VVIE","VEEV", "VEEE","VEVV", "VEVE","VEIV", "VEIE",
-										"VVEV","VVEE","EVEV","EVEE")
-	teigenModels[["altunivariate"]] <- c("univVV", "univVE", "univEV", "univEE")
-	teigenModels[["multivariate"]] <- c("UUUU", "UUUC","CUCU", "CUCC","CUUU", "CUUC","CCCU","CCCC",
-										"CIUU", "CIUC","CICU", "CICC","UIIU","UIIC","CIIU","CIIC",
-										"UIUU","UIUC","UCCU", "UCCC","UUCU", "UUCC","UICU", "UICC",
-										"UCUU","UCUC","CCUU","CCUC")
-	teigenModels[["univariate"]] <- c("univUU", "univUC", "univCU", "univCC")
-	teigenModels[["dfconstrained"]] <- c("UUUC","CUCC","CUUC","CCCC",
-										 "CIUC", "CICC","UIIC","CIIC",
-										 "UIUC","UCCC","UUCC", "UICC",
-										 "UCUC","CCUC")
-	teigenModels[["altdfconstrained"]] <- c("VVVE", "EEVE", "EVVE","EEEE",
-										"EVIE","EEIE","VIIE","EIIE",
-										"VVIE", "VEEE", "VEVE", "VEIE","VVEE","EVEE")
-	teigenModels[["dfunconstrained"]] <- c("UUUU","CUCU","CUUU","CCCU",
-										   "CIUU", "CICU","UIIU","CIIU",
-										   "UIUU","UCCU","UUCU", "UICU",
-										   "UCUU","CCUU")
-	teigenModels[["altdfunconstrained"]] <- c("VVVV", "EEVV", "EVVV","EEEV",
-										"EVIV","EEIV","VIIV","EIIV",
-										"VVIV", "VEEV", "VEVV", "VEIV","VVEV","EVEV")
 	if(is.vector(x)){
 		x <- matrix(origx,length(origx),1)
 		univar <- TRUE
@@ -93,12 +61,10 @@ function(x, Gs=1:9, models="all", init="kmeans", scale=TRUE, dfstart=50, clas=0,
 	if(nrow(x)<ncol(x)){
 		warning("Dimensionality of data exceeds the number of samples, may result in model-fitting failure") 
 	}
-#	for(i in 1:length(models)){
-		if(!all(models %in% c(teigenModels$multivariate, teigenModels$univariate, teigenModels$altnames,"all", "gaussian", "mclust", "dfconstrained", "dfunconstrained", "univariate", "altall"))){
-			stop("You have specified at least one unknown model abbreviation...please select a different set of models")
-			return(NULL)
-		}
-#	}
+	if(!all(models %in% c(teigenModels$multivariate, teigenModels$univariate, teigenModels$altnames,"all", "gaussian", "mclust", "dfconstrained", "dfunconstrained", "univariate", "altall"))){
+		stop("You have specified at least one unknown model abbreviation...please select a different set of models")
+		return(NULL)
+	}
 	if(gauss){
 		dfstart <- Inf
 		dfupdate <- FALSE
@@ -138,6 +104,7 @@ function(x, Gs=1:9, models="all", init="kmeans", scale=TRUE, dfstart=50, clas=0,
 						dfstart <- Inf
 						gauss <- TRUE
 						dfupdate <- FALSE
+						alternatenames <- TRUE
 					}
 					else{
 						if(models=="dfconstrained"|models=="altdfconstrained"){
@@ -193,21 +160,8 @@ function(x, Gs=1:9, models="all", init="kmeans", scale=TRUE, dfstart=50, clas=0,
 			}
 		}
 	}
-#	if(any(c("UCUU","UCUC","CCUU","CCUC") %in% models)){
-#		stop("Models UCCU, UCCC, CCUU ,CCUC are not yet available...please select a different set of models")
-#		return(NULL)
-#	}
 	hh8 <- dfupdate
-	zlist3 <- list()
-	dff <- list()
-	it <- list()
-	store <- list()
-	meanlist <- list()
-	lambdalist <- list()
-	wlist <- list()
-	dlist <- list()
-	alist <- list()
-	siglist <- list()
+	dff <- zlist3 <- store <- meanlist <- lambdalist <- wlist <- dlist <- it <- alist <- siglist <- list()
 	if(clas>0){
 		if(length(known)!=n){
 			stop("Known classifications vector not given, or not the same length as the number of samples (see help file)")
@@ -233,9 +187,7 @@ function(x, Gs=1:9, models="all", init="kmeans", scale=TRUE, dfstart=50, clas=0,
 	}
 	gvec <- 1:max(Gs)
 	gstuff <- paste("G=",gvec,sep="")
-	bic <- matrix(-Inf, length(models), max(Gs))
-	icl <- matrix(-Inf, length(models), max(Gs))
-	logls <- matrix(-Inf, length(models), max(Gs))
+	bic <- icl <- logls <- matrix(-Inf, length(models), max(Gs))
 	unc <- matrix(Inf,length(models),max(Gs))
 	zmatin <- list()
 	if(verbose){
@@ -276,15 +228,7 @@ function(x, Gs=1:9, models="all", init="kmeans", scale=TRUE, dfstart=50, clas=0,
 for(modnum in 1:length(models)){
 	mod <- models[modnum]
 	submod13 <- substring(mod,1,3) 
-	zlist2 <- list()
-	it2 <- list()
-	df2 <- list()
-	siglist2 <- list()
-	meanlist2 <- list()
-	lambdalist2 <- list()
-	wlist2 <- list()
-	dlist2 <- list()
-	alist2 <- list()
+	zlist2 <- it2 <- df2 <- siglist2 <- meanlist2 <- lambdalist2 <- wlist2 <- dlist2 <- alist2 <- list()
 	for(G in Gs){ 
 		singular <- 0
 		killit <- FALSE
@@ -408,8 +352,7 @@ for(modnum in 1:length(models)){
 		cycle <- 0
 		dhfgs78 <- vg
 		conv <- 0
-		num <- matrix(0,n,G)
-		ft <- matrix(0,n,G)
+		num <- ft <- matrix(0,n,G)
 		logl <- NaN
 	while(conv != 1){
 		if(killit){break}
@@ -417,13 +360,22 @@ for(modnum in 1:length(models)){
 		if(any(ng<1.5)){break}
 		pig <- tpigupdate(ng,n)
 		mug <- tmugupdate(G,zmat,w,x,p,univar)
-		if(hh8){
-			testing <- try(jk861 <- yxf7(mod,dhfgs78,ng,zmat,w,G,p,n,x,mug,sigmainv),silent=TRUE)
-			if(all(is.finite(testing))){	
-				dhfgs78 <- jk861
-			}
-			else{break}
-		}
+    if(hh8=="approx"){
+      testing <- try(jk861 <- yxf8(mod,dhfgs78,ng,zmat,w,G,p,n,x,mug,sigmainv),silent=TRUE)
+      if(all(is.finite(testing))){	
+        dhfgs78 <- jk861
+      }
+      else{break}
+    }
+    else{
+  		if(hh8=="numeric"){
+  			testing <- try(jk861 <- yxf7(mod,dhfgs78,ng,zmat,w,G,p,n,x,mug,sigmainv),silent=TRUE)
+  			if(all(is.finite(testing))){	
+  				dhfgs78 <- jk861
+  			}
+  			else{break}
+  		}
+    }
 		delta <- deltaup(x,mug,sigma,sigmainv,G,n,univar)
 		zmat <- tzupdate(x,G,pig,dhfgs78,p,mug,sigmainv,n,sigma,clas,kno,known,unkno,univar,delta,gauss, cycle, anneal)
 		if(any(is.nan(zmat))){
@@ -480,13 +432,13 @@ for(modnum in 1:length(models)){
 		}
 		sigma <- tsigmaup(p,G,sg,lambdag,dg,ag,mod,univar,submod13)
 		if(!univar){
-				for(g in 1:G){
-					test <- rcond(sigma[,,g])
-					if(test <= sqrt(.Machine$double.eps)){
-							singular <- 1
-					}
+			for(g in 1:G){
+				test <- rcond(sigma[,,g])
+				if(test <= sqrt(.Machine$double.eps)){
+					singular <- 1
 				}
-				if(singular==1){break}
+			}
+			if(singular==1){break}
 			sigmainv <- tsigmainvup(p,G,sigma)
 		}
 		delta <- deltaup(x,mug,sigma,sigmainv,G,n,univar)
@@ -495,7 +447,8 @@ for(modnum in 1:length(models)){
 			zmat <- (ft^anneal[cycle+1])/rowSums(ft^anneal[cycle+1])
 		}
 		else{
-			zmat <- ft/rowSums(ft)
+      ft_den <- rowSums(ft)
+			zmat <- ft/ft_den
 		}	
 		if(clas>0){
 			zmat <- unkno*zmat
@@ -514,7 +467,7 @@ for(modnum in 1:length(models)){
 		ng <- tngupdate(zmat)
 		if(any(ng<1.5)){break}
 		cycle <- cycle + 1
-		logl[cycle]<- sum(log(rowSums(ft)))
+		logl[cycle]<- sum(log(ft_den))
 		if(is.na(logl[cycle])){break}
 		if(cycle>3){
 			denomi <- (logl[cycle-1]-logl[cycle-2])
@@ -540,43 +493,7 @@ for(modnum in 1:length(models)){
 		}
 	}
 	if(verbose){
-		modelcount <- modelcount+1
-		modsleft <- totmod-modelcount
-		timerun <- difftime(Sys.time(),start.time, units="secs")
-		timeremain <- (timerun/modelcount)*modsleft
-		if(timeremain>60){
-			if(timeremain>3600){
-				if(timeremain>86400){
-					if(timeremain>604800){
-						units(timeremain) <- "weeks"
-					}
-					else{
-						units(timeremain) <- "days"
-					}
-				}
-				else{
-					units(timeremain) <- "hours"
-				}
-			}
-			else{
-				units(timeremain) <- "mins"
-			}
-		}
-		curwidth <- getOption("width")
-		if(curwidth>=80){
-			cat("Time taken:", format(round(timerun,1), width=6, justify="right"), "  |  (Approx) remaining:", format(round(timeremain,1), width=6, justify="right"), "  |  " ,format(round((1-modsleft/totmod)*100), width=4, justify="right"), "% complete", "\r", sep="")
-		}
-		else{
-			if(curwidth>=50){
-				cat("Approx. remaining:", format(round(timeremain,1), width=6, justify="right"), "  |  " ,format(round((1-modsleft/totmod)*100), width=4, justify="right"), "% complete", "\r", sep="")
-			}
-			else{
-				if(curwidth>=16){
-					cat(format(round((1-modsleft/totmod)*100), width=4, justify="right"), "% complete", "\r", sep="")
-				}
-			}
-		}
-		flush.console()
+		modelcount <- estimateTime(modelcount, start.time, totmod)
 	}
 	if(conv==1){
 		logls[modnum,G] <- max(logl)
@@ -633,17 +550,7 @@ for(modnum in 1:length(models)){
 			bestmodnum <- maxes[1:nrow(maxes),1]
 			bestmod <- models[bestmodnum]
 			bestg <- maxes[1:nrow(maxes),2]
-			itf <- "MULTIPLE"
-			dff1 <- "MULTIPLE" 
-			bestz <- "MULTIPLE"
-			bestzmap <- "MULTIPLE"
-			adjrand <- "MULTIPLE"
-			tab <- "MULTIPLE"
-			bestmean <- "MULTIPLE"
-			bestlambda <- "MULTIPLE"
-			bestd <- "MULTIPLE"
-			besta <- "MULTIPLE"
-			bestsig <- "MULTIPLE"
+			itf <- dff1 <- bestz <- bestzmap <- adjrand <- tab <- bestmean <- bestlambda <- bestd <- besta <- bestsig <- "MULTIPLE"
 		}
 		if(nrow(maxes)==1){
 			bestmodnum <- maxes[1]
@@ -694,17 +601,7 @@ for(modnum in 1:length(models)){
 			bestmodnumicl <- maxicl[1:nrow(maxicl),1]
 			bestmodicl <- models[bestmodnumicl]
 			bestgicl <- maxicl[1:nrow(maxicl),2]
-			dff1icl <- "MULTIPLE"
-			bestzicl <- "MULTIPLE"
-			bestzmapicl <- "MULTIPLE"
-			adjrandicl <- "MULTIPLE"
-			itficl <- "MULTIPLE"
-			tabicl <- "MULTIPLE"
-			bestmeanicl <- "MULTIPLE"
-			bestlambdaicl <- "MULTIPLE"
-			bestdicl <- "MULTIPLE"
-			bestaicl <- "MULTIPLE"
-			bestsigicl <- "MULTIPLE"
+			dff1icl <- bestzicl <- bestzmapicl <- adjrandicl <- itficl <- tabicl <- bestmeanicl <- bestlambdaicl <- bestdicl <- bestaicl <- bestsigicl <- "MULTIPLE"
 		}
 		if(nrow(maxicl)==1){
 			bestmodnumicl <- maxicl[1]

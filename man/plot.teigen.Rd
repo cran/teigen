@@ -9,7 +9,7 @@ Outputs marginal contour or uncertainty plots to the graphics device for objects
 }
 \usage{
 \method{plot}{teigen}(x, xmarg = 1, ymarg = 2, res = 200, levels = c(seq(0.01, 1, by = 0.01), 0.001),
-    what = c("contour", "uncertainty"), \dots) 
+    what = c("contour", "uncertainty"), main=NULL, xlab=NULL, legend=TRUE, \dots) 
 }
 
 \arguments{
@@ -31,6 +31,15 @@ Numeric vector giving the levels at which contours should be drawn. Default is t
  \item{what}{
 Character vector stating which plots should be sent to the graphics device. Choices are \code{"contour"} or \code{"uncertainty"}.
 }
+ \item{main}{
+  Optional character string for title of plot. Useful default if left as \code{NULL}.
+}
+ \item{xlab}{
+Optional character string for x-axis label.
+}
+ \item{legend}{
+Logical for a default generation of a legend in the top left corner of the plot(s).
+}
 
 \item{\dots}{Options to be passed to \code{plot}.}
 }
@@ -38,7 +47,7 @@ Character vector stating which plots should be sent to the graphics device. Choi
 
 \details{
 %%  ~~ If necessary, more details than the description above ~~
-\code{"contour"} plots the marginal distribution of the mixture distribution.
+\code{"contour"} plots the marginal distribution of the mixture distribution. For univariate data, or if \code{ymarg} is \code{NULL}, a univariate marginal is provided that includes the kernel density estimate from \code{density()}, the mixture distribution, and colour-coded component densities.
 
 \code{"uncertainty"} plots the uncertainty of each observation's classification - the larger the point, the more uncertainty associated with that observation. Uncertainty in this context refers to the probability that the observation arose from the mixture component specified by the colour in the plot rather than the other components.
 }

@@ -72,6 +72,11 @@ function(p,G,mod,sg,lambdag,ng,n,dg,submod13){
 			diag(ag[,,g]) <- dum2
 		}
 	}
+  for(g in 1:G){
+    if(any(diag(ag[,,g]) <= sqrt(.Machine$double.eps))){
+      negdet <- TRUE 
+    }
+  }
 	if(negdet){
 		ag <- FALSE
 	}

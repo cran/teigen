@@ -10,7 +10,7 @@ Fits multivariate t-distribution mixture models under a clustering paradigm (def
 \usage{
 teigen.parallel(x, Gs = 1:9, numcores = NULL, models = "all", init = "kmeans",
 	 scale = TRUE, dfstart = 50, clas = 0, known= NULL, training = NULL,
-	 gauss = FALSE, dfupdate = TRUE, eps = c(0.001, 0.1), anneal=NULL,
+	 gauss = FALSE, dfupdate = "approx", eps = c(0.001, 0.1), anneal=NULL,
 	 maxit=c(20,1000) ) 
 }
 
@@ -62,7 +62,7 @@ Logical indicating if the algorithm should use the gaussian distribution. If \co
 }
   \item{dfupdate}{
 %%     ~~Describe \code{dfupdate} here~~
-Logical indicating whether or not the degrees of freedom should be estimated. If \code{FALSE}, the value from \code{dfstart} is used instead.
+Character string or logical indicating how the degrees of freedom should be estimated. The default is \code{"approx"} indicating a closed form approximation be used. Alternatively, \code{"numeric"} can be specified which makes use of \code{\link{uniroot}}. If \code{FALSE}, the value from \code{dfstart} is used and the degrees of freedom are not updated. If \code{TRUE}, \code{"numeric"} will be used for back-compatibility.
 }
   \item{eps}{
 %%     ~~Describe \code{eps} here~~
@@ -111,7 +111,7 @@ Jeffrey L. Andrews
 
 #Clustering old faithful data with tEIGEN
 tfaith <- teigen.parallel(faithful, models="UUUU",
-numcores=2, Gs=1:3, init="disc")
+numcores=2, Gs=1:3, init="hard")
 plot(tfaith)
 
 #Classification with the iris data set via percentage of

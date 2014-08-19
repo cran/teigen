@@ -5,11 +5,11 @@
 teigen: Function for model-based clustering and classification with the multivariate t-distribution
 }
 \description{
-Fits multivariate t-distribution mixture models (with eigen-decomposed covariance structure) to the given data underneath a clustering paradigm (default) or classification paradigm (by giving either training index or percentage of data taken to be known).
+Fits multivariate t-distribution mixture models (with eigen-decomposed covariance structure) to the given data within a clustering paradigm (default) or classification paradigm (by giving either training index or percentage of data taken to be known).
 }
 \usage{
 teigen(x, Gs = 1:9, models = "all", init ="kmeans", scale = TRUE, dfstart = 50, 
-      clas = 0, known= NULL, training = NULL, gauss = FALSE, dfupdate = TRUE, 
+      clas = 0, known= NULL, training = NULL, gauss = FALSE, dfupdate = "approx", 
       eps = c(0.001, 0.1), verbose=TRUE, anneal=NULL, maxit=c(20,1000))}
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -54,7 +54,7 @@ Logical indicating if the algorithm should use the gaussian distribution. If \co
 }
   \item{dfupdate}{
 %%     ~~Describe \code{dfupdate} here~~
-Logical indicating whether or not the degrees of freedom should be estimated. If \code{FALSE}, the value from \code{dfstart} is used instead.
+Character string or logical indicating how the degrees of freedom should be estimated. The default is \code{"approx"} indicating a closed form approximation be used. Alternatively, \code{"numeric"} can be specified which makes use of \code{\link{uniroot}}. If \code{FALSE}, the value from \code{dfstart} is used and the degrees of freedom are not updated. If \code{TRUE}, \code{"numeric"} will be used for back-compatibility.
 }
   \item{eps}{
 %%     ~~Describe \code{eps} here~~
