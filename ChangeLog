@@ -1,3 +1,7 @@
+teigen version 2.0.8 2015-1-28:
+- Added iteration counts via "iter" and "iclresults$iter" and updated help files to reflect this
+- Bug fix
+
 teigen version 2.0.7 2014-08-19:
 
 - Argument dfupdate now takes characters "approx" or "numeric", or logicals TRUE or FALSE (see next two changes)

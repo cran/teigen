@@ -2,7 +2,7 @@
 \alias{teigen.parallel}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-teigen.parallel: Parallelized implementation of the teigen function
+teigen.parallel: Parallelized Implementation of the teigen Function
 }
 \description{
 Fits multivariate t-distribution mixture models under a clustering paradigm (default) or classification paradigm.

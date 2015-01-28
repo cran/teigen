@@ -4,7 +4,7 @@
 \alias{tEIGEN}
 \docType{package}
 \title{
-teigen: Model-based clustering and classification with the multivariate t-distribution
+teigen: Model-Based Clustering and Classification with the Multivariate t Distribution
 }
 \description{
 Fits mixtures of multivariate t-distributions (with eigen-decomposed covariance structure) via the multi-cycle ECM algorithm under a clustering or classification paradigm.
@@ -13,8 +13,8 @@ Fits mixtures of multivariate t-distributions (with eigen-decomposed covariance 
 \tabular{ll}{
 Package: \tab teigen\cr
 Type: \tab Package\cr
-Version: \tab 2.0.7\cr
-Date: \tab 2014-08-19\cr
+Version: \tab 2.0.8\cr
+Date: \tab 2015-1-28\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }

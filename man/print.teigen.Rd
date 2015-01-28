@@ -2,7 +2,7 @@
 \alias{print.teigen}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-print.teigen: Print function for teigen objects
+print.teigen: Print Function for tEIGEN Objects
 }
 \description{
 Outputs summary information.

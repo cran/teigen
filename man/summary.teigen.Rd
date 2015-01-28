@@ -2,7 +2,7 @@
 \alias{summary.teigen}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-summary.teigen: Summary function for teigen objects
+summary.teigen: Summary Function for tEIGEN Objects
 }
 \description{
 Gives summary information.

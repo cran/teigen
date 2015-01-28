@@ -101,6 +101,7 @@ function(x, Gs=1:9, models="all", init="kmeans", scale=TRUE, dfstart=50, clas=0,
 				else{
 					if(models=="mclust"){
 						models <- c("UUUC","CUCC","CCCC","CIUC","CICC","UIIC","CIIC","UIUC","UUCC","UICC")
+            origmodels <- models
 						dfstart <- Inf
 						gauss <- TRUE
 						dfupdate <- FALSE
@@ -671,6 +672,8 @@ for(modnum in 1:length(models)){
 		icllist[["classification"]] <- bestzmapicl
 		icllist[["modelname"]] <- bestmodicl
 		store[["G"]] <- bestg
+    store[["iter"]] <- itf
+    icllist[["iter"]] <- itficl 
 		icllist[["G"]] <- bestgicl
 		if(length(known)>0){
 			store[["tab"]] <- tab

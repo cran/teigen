@@ -2,7 +2,7 @@
 \alias{teigen}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-teigen: Function for model-based clustering and classification with the multivariate t-distribution
+teigen: Function for Model-Based Clustering and Classification with the Multivariate t Distribution
 }
 \description{
 Fits multivariate t-distribution mixture models (with eigen-decomposed covariance structure) to the given data within a clustering paradigm (default) or classification paradigm (by giving either training index or percentage of data taken to be known).
@@ -117,11 +117,13 @@ Also note that for G=1, several models are equivalent (for example, UUUU and CCC
 
 \item{G}{Value corresponding to the number of components chosen by the BIC. }
 
-\item{tab}{Classification table for BIC model (only available when \code{known} is given). When classification is used the ``known'' observations are left out of the table. }
+\item{tab}{Classification table for BIC-selected model (only available when \code{known} is given). When classification is used the ``known'' observations are left out of the table. }
 
 \item{fuzzy}{The fuzzy clustering matrix for the model selected by the BIC. }
 
 \item{logl}{The log-likelihood corresponding to the model with the best BIC. }
+
+\item{iter}{The number of iterations until convergence for the model selected by the BIC.}
 
 \item{parameters}{List containing the fitted parameters: \code{mean} - matrix of means where the rows correspond to the component and the columns are the variables; \code{sigma} - array of covariance matrices (multivariate) or variances (univariate); \code{lambda} - vector of scale parameters, or constants of proportionality; \code{d} - eigenvectors, or orientation matrices; \code{a} - diagonal matrix proportional to eigenvalues, or shape matrices; \code{df} - vector containing the degrees of freedom for each component; \code{weights} - matrix of the expected value of the characteristic weights (used as an estimation of `outlierness' by \code{\link{plot.teigen}}). }
 

@@ -2,7 +2,7 @@
 \alias{plot.teigen}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-plot.teigen: Plotting function for teigen objects
+plot.teigen: Plotting Function for tEIGEN Objects
 }
 \description{
 Outputs marginal contour or uncertainty plots to the graphics device for objects of class \code{\link{teigen}}.

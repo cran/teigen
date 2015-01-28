@@ -3,7 +3,7 @@ citHeader("To cite package 'teigen' in publications use:")
 citEntry(entry="Manual",
          title = "teigen: Model-based clustering and classification with the multivariate t-distribution",
     	author = personList(person(given=c("Jeffrey", "L."), family="Andrews"),person(given=c("Paul", "D."), family="McNicholas")),
-    	year = "2014",
+    	year = "2015",
     	note = "R package version 2",
     	textVersion = "Andrews, J. L. & McNicholas, P. D. (2014). teigen: Model-based
   clustering and classification with the multivariate t-distribution. R package version 2."
