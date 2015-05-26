@@ -156,7 +156,8 @@ function(x, Gs=1:9, models="all", init="kmeans", scale=TRUE, dfstart=50, clas=0,
 		else{
 			if(any(models %in% teigenModels$altnames)){
 				origmodels <- models
-				models[models %in% teigenModels$altnames] <- teigenModels$multivariate[teigenModels$altnames %in% models]
+#				models[models %in% teigenModels$altnames] <- teigenModels$multivariate[teigenModels$altnames %in% models]
+        models[models %in% teigenModels$altnames] <- na.omit(teigenModels$multivariate[match(models, teigenModels$altnames)])
 				alternatenames <- TRUE
 			}
 		}

@@ -1,3 +1,6 @@
+teigen version 2.0.81 2015-5-26:
+- Bug fix
+
 teigen version 2.0.8 2015-1-28:
 - Added iteration counts via "iter" and "iclresults$iter" and updated help files to reflect this
 - Bug fix
