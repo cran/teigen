@@ -5,12 +5,13 @@
 teigen: Function for Model-Based Clustering and Classification with the Multivariate t Distribution
 }
 \description{
-Fits multivariate t-distribution mixture models (with eigen-decomposed covariance structure) to the given data within a clustering paradigm (default) or classification paradigm (by giving either training index or percentage of data taken to be known).
+Fits multivariate t-distribution mixture models (with eigen-decomposed covariance structure) to the given data within a clustering paradigm (default) or classification paradigm (by giving either training index or percentage of data taken to be known). Can be run in parallel.
 }
 \usage{
-teigen(x, Gs = 1:9, models = "all", init ="kmeans", scale = TRUE, dfstart = 50, 
-      clas = 0, known= NULL, training = NULL, gauss = FALSE, dfupdate = "approx", 
-      eps = c(0.001, 0.1), verbose=TRUE, anneal=NULL, maxit=c(20,1000))}
+teigen(x, Gs = 1:9, models = "all", init = "kmeans", scale = TRUE, dfstart = 50, 
+	known = NULL, training = NULL, gauss = FALSE, dfupdate = "approx", 
+	eps = c(0.001, 0.1), verbose = TRUE, maxit = c(Inf,Inf), 
+	convstyle = "aitkens", parallel.cores = FALSE, ememargs = NULL)}
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{
@@ -37,10 +38,6 @@ Logical indicating whether or not the function should scale the data. Default is
 %%     ~~Describe \code{dfstart} here~~
 The initialized value for the degrees of freedom. The default is 50.
 }
-  \item{clas}{
-%%     ~~Describe \code{clas} here~~
-Value between 0-100 indicating the percentage of data taken to be known. Note that a vector of known classifications is needed. See next argument for an alternative. Default is 0 and performs clustering, otherwise the algorithm chooses the training index randomly (and will return it via \code{index}).
-}
   \item{training}{
 %%     ~~Describe \code{training} here~~
 Optional indexing vector for the observations whose classification is taken to be known. 
@@ -62,16 +59,27 @@ Vector (of size 2) giving tolerance values for the convergence criterion. First 
 }
   \item{verbose}{
 %%     ~~Describe \code{verbose} here~~
-Logical indicating whether the running output should be displayed. What is displayed depends on the width of the R window. With a width of 80 or larger: time run, estimated time remaining, percent complete are all displayed.
-}
-\item{anneal}{
-%%     ~~Describe \code{anneal} here~~
-Optional vector giving the deterministic annealing schedule.
+Logical indicating whether the running output should be displayed. This option is not available in parallel. What is displayed depends on the width of the R window. With a width of 80 or larger: time run, estimated time remaining, percent complete are all displayed.
 }
 \item{maxit}{
 %%     ~~Describe \code{maxit} here~~
-Vector (of size 2) giving maximum iteration number for the iterated M-steps and EM algorithm, respectively. A warning is displayed if either of these maximums are met.
+Vector (of size 2) giving maximum iteration number for the iterated M-steps and EM algorithm, respectively. A warning is displayed if either of these maximums are met, default for both is Inf (aka, no limit).
 }
+  \item{convstyle}{
+%%     ~~Describe \code{convstyle} here~~
+Character string specifying the method of determining convergence. Default is "aitkens" which uses a criteria based on Aitken's acceleration, but "lop" (lack of progress) may be used instead.
+}
+  \item{parallel.cores}{
+%%     ~~Describe \code{parallel.cores} here~~
+Logical indicating whether to run teigen in parallel or not. If \code{TRUE}, then the function determines the number of cores available and uses all of them. Alternatively, a positive integer may be provided indicating the number of cores the user wishes to use for running in parallel. 
+}
+  \item{ememargs}{
+    A list of the controls for the emEM initialization with named elements: 
+      \code{numstart} - numeric, number of starts
+      \code{iter} - numeric, number of EM iterations
+      \code{model} - character string, model name to be used (C,U,I nomenclature...see details below)
+      \code{init} - character string, initialization method for emEM (one of \code{hard}, \code{soft}, or \code{kmeans}.
+  }
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
@@ -125,7 +133,7 @@ Also note that for G=1, several models are equivalent (for example, UUUU and CCC
 
 \item{iter}{The number of iterations until convergence for the model selected by the BIC.}
 
-\item{parameters}{List containing the fitted parameters: \code{mean} - matrix of means where the rows correspond to the component and the columns are the variables; \code{sigma} - array of covariance matrices (multivariate) or variances (univariate); \code{lambda} - vector of scale parameters, or constants of proportionality; \code{d} - eigenvectors, or orientation matrices; \code{a} - diagonal matrix proportional to eigenvalues, or shape matrices; \code{df} - vector containing the degrees of freedom for each component; \code{weights} - matrix of the expected value of the characteristic weights (used as an estimation of `outlierness' by \code{\link{plot.teigen}}). }
+\item{parameters}{List containing the fitted parameters: \code{mean} - matrix of means where the rows correspond to the component and the columns are the variables; \code{sigma} - array of covariance matrices (multivariate) or variances (univariate); \code{lambda} - vector of scale parameters, or constants of proportionality; \code{d} - eigenvectors, or orientation matrices; \code{a} - diagonal matrix proportional to eigenvalues, or shape matrices; \code{df} - vector containing the degrees of freedom for each component; \code{weights} - matrix of the expected value of the characteristic weights (used as an estimation of `outlierness' by \code{\link{plot.teigen}}); \code{pig} - a vector giving the mixing proportions. }
 
 \item{iclresults}{List containing all the previous outputs, except \code{x} and \code{index}, pertaining to the model chosen by the best ICL (all under the same name except \code{allicl} and \code{icl} are the equivalent of \code{allbic} and \code{bic}, respectively).}
 
@@ -138,7 +146,7 @@ Andrews JL, McNicholas PD, and Subedi S (2011) ``Model-based classification via 
 }
 \author{
 %%  ~~who you are~~
-Jeffrey L. Andrews, Paul D. McNicholas
+Jeffrey L. Andrews, Jaymeson R. Wickins, Nicholas M. Boers, Paul D. McNicholas
 }
 
 
@@ -153,7 +161,7 @@ See package manual \code{\link{tEIGEN}}
 
 #Clustering old faithful data with hard random start
 tfaith <- teigen(faithful, models="UUUU", Gs=1:3, init="hard")
-plot(tfaith)
+plot(tfaith, what = "uncertainty")
 summary(tfaith)
 
 #Clustering old faithful with hierarchical starting values
@@ -165,15 +173,28 @@ for(i in 1:3){
 tfaith <- teigen(faithful, models="CUCU", Gs=1:3, init=initial_list)
 print(tfaith)
 
-#Classification with the iris data set via percentage of data taken to have known membership
-tiris <- teigen(iris[,-5], models="CUUU", init="uniform",clas=50,known=iris[,5])
-tiris$tab
-
-#Classification with the iris data set via training set
-irisknown <- iris[,5]
+#Classification with the iris data set
 #Introducing NAs is not required; this is to illustrate a `true' classification scenario
+irisknown <- iris[,5]
 irisknown[134:150] <- NA
-triris <- teigen(iris[,-5], models="CUUU", init="uniform", known=irisknown, training=1:133)
+triris <- teigen(iris[,-5], models="CUUU", init="uniform", known=irisknown)
+
+##Parallel examples:
+###Note: parallel.cores set to 2 in order to comply
+###with CRAN submission policies (set to higher
+###number or TRUE to automatically use all available cores)
+
+#Clustering old faithful data with tEIGEN
+tfaith <- teigen(faithful, models="UUUU",
+parallel.cores=2, Gs=1:3, init="hard")
+plot(tfaith, what = "contour")
+
+#Classification with the iris data set 
+irisknown <- iris[,5]
+irisknown[sample(1:nrow(iris),50)] <- NA
+tiris <- teigen(iris[,-5], parallel.cores=2, models="CUUU",
+init="uniform", known=irisknown)
+tiris$tab
 }
 
 

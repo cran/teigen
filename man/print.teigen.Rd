@@ -5,7 +5,7 @@
 print.teigen: Print Function for tEIGEN Objects
 }
 \description{
-Outputs summary information.
+Outputs short, concise information on the teigen object: BIC value, best model, and best group. Same info for ICL is output if it disagrees with the BIC value.
 }
 \usage{
 \method{print}{teigen}(x, \dots)
@@ -23,7 +23,7 @@ Options to be passed to \code{print}.
 
 \author{
 %%  ~~who you are~~
-Jeffrey L. Andrews
+Jaymeson R. Wickins, Nicholas M. Boers, Jeffrey L. Andrews
 }
 
 

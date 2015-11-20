@@ -1,3 +1,17 @@
+teigen version 2.1.0 2015-11-19:
+- Changed defaults of 'maxit' to c(Inf, Inf).
+- Added ckd (chronic kidney disease) data set and documentation.
+- estimateTime bug fix. Correct output displayed in Rgui, Rstudio or R from command line.
+- New argument "parallel.cores" added to teigen so serial and parallel version can be run from
+  one function. Default value is FALSE (serial). teigen.parallel function no longer available.
+- kmeans now chooses best of 50 runs to strengthen consistency.
+- Upgraded plot function. Can plot univariate marginals of a multivariate teigen object with
+  ymarg = NULL. Legend moved outside graph. More flexibility with using graphing parameters
+  such as mfrow, cex, col, pch, lwd, lty. Uncertainty plot more readable. Aesthetics improved.
+- teigen.print displays a short, concise description. Output is different from summary.teigen
+- Argument anneal removed due to lack of utility
+- Increased efficiency through some code translation into C and unnecessary code removal
+
 teigen version 2.0.81 2015-5-26:
 - Bug fix
 
