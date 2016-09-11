@@ -1,3 +1,9 @@
+teigen version 2.1.1 2016-09-10
+- Corrected help file
+- Added tick marks for observations in univariate plot
+- Fixed bugs in plot method (univariate mixture curve was missing 
+  and specifying margins for uncertainty plot previously were ignored)
+
 teigen version 2.1.0 2015-11-19:
 - Changed defaults of 'maxit' to c(Inf, Inf).
 - Added ckd (chronic kidney disease) data set and documentation.

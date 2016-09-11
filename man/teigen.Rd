@@ -11,7 +11,8 @@ Fits multivariate t-distribution mixture models (with eigen-decomposed covarianc
 teigen(x, Gs = 1:9, models = "all", init = "kmeans", scale = TRUE, dfstart = 50, 
 	known = NULL, training = NULL, gauss = FALSE, dfupdate = "approx", 
 	eps = c(0.001, 0.1), verbose = TRUE, maxit = c(Inf,Inf), 
-	convstyle = "aitkens", parallel.cores = FALSE, ememargs = NULL)}
+	convstyle = "aitkens", parallel.cores = FALSE, 
+	ememargs = list(25, 5, "UUUU", "hard"))}
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{
@@ -28,7 +29,7 @@ A character vector giving the models to fit. See details for a comprehensive lis
 }
   \item{init}{
 %%     ~~Describe \code{init} here~~
-A list of initializing classification of the form that \code{init[[G]]} contains the initializing vector for all G considered (see example below). Alternatively, the user can use a character string indicating initialization method. Currently the user can choose from \code{"kmeans"} (default), `hard' random - \code{"hard"}, `soft' random - \code{"soft"}, and \code{"uniform"} (classification only).
+A list of initializing classification of the form that \code{init[[G]]} contains the initializing vector for all G considered (see example below). Alternatively, the user can use a character string indicating initialization method. Currently the user can choose from \code{"kmeans"} (default), `hard' random - \code{"hard"}, `soft' random - \code{"soft"},  \code{``emem''} (see \code{ememargs} below for description), and \code{"uniform"} (classification only).
 }
   \item{scale}{
 %%     ~~Describe \code{scale} here~~
@@ -75,10 +76,11 @@ Logical indicating whether to run teigen in parallel or not. If \code{TRUE}, the
 }
   \item{ememargs}{
     A list of the controls for the emEM initialization with named elements: 
-      \code{numstart} - numeric, number of starts
-      \code{iter} - numeric, number of EM iterations
-      \code{model} - character string, model name to be used (C,U,I nomenclature...see details below)
-      \code{init} - character string, initialization method for emEM (one of \code{hard}, \code{soft}, or \code{kmeans}.
+      \code{numstart} - numeric, number of starts (default 25)
+      \code{iter} - numeric, number of EM iterations (default 5)
+      \code{model} - character string, model name to be used (default ``UUUU'' from C,U,I nomenclature...see details below) 
+      \code{init} - character string, initialization method for emEM (default \code{hard}, or \code{soft}, or \code{kmeans}).
+    The emEM initialiazation will run multiple, randomized initialization attempts for a limited number of iterations, and then continue the model-fitting process.
   }
 }
 \details{
@@ -133,7 +135,7 @@ Also note that for G=1, several models are equivalent (for example, UUUU and CCC
 
 \item{iter}{The number of iterations until convergence for the model selected by the BIC.}
 
-\item{parameters}{List containing the fitted parameters: \code{mean} - matrix of means where the rows correspond to the component and the columns are the variables; \code{sigma} - array of covariance matrices (multivariate) or variances (univariate); \code{lambda} - vector of scale parameters, or constants of proportionality; \code{d} - eigenvectors, or orientation matrices; \code{a} - diagonal matrix proportional to eigenvalues, or shape matrices; \code{df} - vector containing the degrees of freedom for each component; \code{weights} - matrix of the expected value of the characteristic weights (used as an estimation of `outlierness' by \code{\link{plot.teigen}}); \code{pig} - a vector giving the mixing proportions. }
+\item{parameters}{List containing the fitted parameters: \code{mean} - matrix of means where the rows correspond to the component and the columns are the variables; \code{sigma} - array of covariance matrices (multivariate) or variances (univariate); \code{lambda} - vector of scale parameters, or constants of proportionality; \code{d} - eigenvectors, or orientation matrices; \code{a} - diagonal matrix proportional to eigenvalues, or shape matrices; \code{df} - vector containing the degrees of freedom for each component; \code{weights} - matrix of the expected value of the characteristic weights; \code{pig} - a vector giving the mixing proportions. }
 
 \item{iclresults}{List containing all the previous outputs, except \code{x} and \code{index}, pertaining to the model chosen by the best ICL (all under the same name except \code{allicl} and \code{icl} are the equivalent of \code{allbic} and \code{bic}, respectively).}
 

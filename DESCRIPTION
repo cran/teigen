@@ -2,8 +2,8 @@ Package: teigen
 Type: Package
 Title: Model-Based Clustering and Classification with the Multivariate
         t Distribution
-Version: 2.1.0
-Date: 2015-11-19
+Version: 2.1.1
+Date: 2016-09-10
 Author: Jeffrey L. Andrews, Jaymeson R. Wickins, Nicholas M. Boers, Paul D. McNicholas
 Maintainer: Jeffrey L. Andrews <jeff.andrews@ubc.ca>
 Description: Fits mixtures of multivariate t-distributions (with eigen-decomposed covariance structure) via the expectation conditional-maximization algorithm under a clustering or classification paradigm.
@@ -11,6 +11,6 @@ License: GPL (>= 2)
 LazyLoad: yes
 Imports: parallel
 NeedsCompilation: yes
-Packaged: 2015-11-20 07:53:38 UTC; jandrews
+Packaged: 2016-09-11 02:44:44 UTC; jeff
 Repository: CRAN
-Date/Publication: 2015-11-20 10:54:53
+Date/Publication: 2016-09-11 13:14:45

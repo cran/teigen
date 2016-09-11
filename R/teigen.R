@@ -223,7 +223,7 @@ plot.teigen <- function(x, xmarg = 1, ymarg = 2, res = 200, what = c("contour", 
             }
             mycex <- (1 + uncmult/20)*mycex^(1 + uncmult/20)
             
-            plot(teigen$x[,1:2], col= col, bg = bg, pch = pch, cex = mycex, ...)
+            plot(teigen$x[,c(xmarg,ymarg)], col= col, bg = bg, pch = pch, cex = mycex, ...)
             
             if(is.null(main)){title("Uncertainty Plot", ...)}else{title(main, ...)}
         }
@@ -355,7 +355,8 @@ plot.teigen <- function(x, xmarg = 1, ymarg = 2, res = 200, what = c("contour", 
         teig.dens <- density(teigen$x)
         ##mixcurve curve has interval c(from, to) multiplied by 1.1 to account for slight increase
         ##in the x dimensions of the plot that par()$usr adds. Do not plot it yet
-        mixcurve <- curve(mixuniv(x, teigen), from = 1.1*min(teig.dens$x), to = 1.1*max(teig.dens$x),
+        ##JEFF fixed...multiplier likely only worked on scaled data
+        mixcurve <- curve(mixuniv(x, teigen), from = min(teig.dens$x)-1, to = max(teig.dens$x)+1,
                           n=res, type = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "", bty = "n")
         
         par(mfg = par()$mfg[1:2])
@@ -381,7 +382,9 @@ plot.teigen <- function(x, xmarg = 1, ymarg = 2, res = 200, what = c("contour", 
             curve(dunivt(x,teigen$par$df[g],teigen$par$sigma[,,g],teigen$par$mean[g,],teigen$par$pig[g], teigen$info$gauss),add=TRUE,
                   col=col[g], n=res, lty = lty, ...)
         }
-        
+        cols <- col[teigen$clas] ## colors corresponding to data
+        cols2 <- adjustcolor(cols, alpha.f = alpha)
+        points(teigen$x, rep(0, length(teigen$x)), col=cols2, pch="|")
 #         if(!identical(main,"")){
 #             text <- paste("Graphing teigen object: ' ", objname, " '")
 #             mtext(text, 3, font = 3)
@@ -816,7 +819,7 @@ thardrandz <-
 teigen <- 
     function(x, Gs=1:9, models="all", init="kmeans", scale=TRUE, dfstart=50, known=NULL, training=NULL, 
              gauss=FALSE, dfupdate="approx", eps=c(0.001,0.1), verbose=TRUE, maxit=c(Inf,Inf), 
-             convstyle = "aitkens", parallel.cores=FALSE, ememargs=NULL){
+             convstyle = "aitkens", parallel.cores=FALSE, ememargs=list(25, 5, "UUUU", "hard")){
         fcall <- match.call() ##get the call of this function
         
         ##error checking
@@ -1355,12 +1358,12 @@ teigen.EM <-
                             else{break}
                         }
                     }
-                    if(any(is.nan(zmat))){
-                        break
-                    }
-                    if(!gauss){
-                        w <- twupdate(x,n,G,mug,sigmainv,dhfgs78,p,univar,sigma,delta)
-                    }
+#                     if(any(is.nan(zmat))){
+#                         break
+#                     }
+#                     if(!gauss){
+#                         w <- twupdate(x,n,G,mug,sigmainv,dhfgs78,p,univar,sigma,delta)
+#                     }
                     ng <- tngupdate(zmat)
                     if(any(ng<1.5)){break}
                     sg <- tsgupdate(p,G,n,x,mug,zmat,w,ng,mod,pig,submod13)
