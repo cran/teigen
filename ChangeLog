@@ -1,3 +1,7 @@
+teigen version 2.2.0 2016-12-06
+- Added predict S3 method and associated help file
+- Updated teigen function help file
+
 teigen version 2.1.1 2016-09-10
 - Corrected help file
 - Added tick marks for observations in univariate plot

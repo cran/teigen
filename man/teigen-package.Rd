@@ -13,8 +13,8 @@ Fits mixtures of multivariate t-distributions (with eigen-decomposed covariance 
 \tabular{ll}{
 Package: \tab teigen\cr
 Type: \tab Package\cr
-Version: \tab 2.1.1\cr
-Date: \tab 2016-09-10\cr
+Version: \tab 2.2.0\cr
+Date: \tab 2016-12-06\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }

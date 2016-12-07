@@ -1667,7 +1667,7 @@ teigen.EM <-
             iclresults <- list(icl = -Inf)
             store[["iclresults"]] <- iclresults
         }
-        info <- list(univar = univar, gauss = gauss)
+        info <- list(univar = univar, gauss = gauss, scalelogic=scale, scalemeans=attr(x, "scaled:center"), scalesd=attr(x, "scaled:scale"))
         store[["info"]] <- info
         class(store) <- "teigen"
         if(verbose){cat("\n")}
@@ -2291,4 +2291,35 @@ ememinit <- function(ememargs, x, g, scale, dfstart, clas, known, training, gaus
     zmat[cl==i, i]<-1
   }
   zmat
+}
+
+predict.teigen <- function(object, newdata=NULL, modelselect="BIC", ...){
+  #object is teigen
+  #newdata is vector/data frame for new observations
+  if(is.null(newdata)){ 
+    newdata <- object$x
+  }
+  else{
+    if(object$info$scalelogic){
+      newdata <- scale(newdata, center=object$info$scalemeans, scale=object$info$scalesd)
+    }
+  }
+  
+  if(!(modelselect %in% c("BIC", "ICL"))){stop("modelselect must be one of 'BIC' or 'ICL'")}
+  if(modelselect=="ICL"){results <- object$iclresults}
+  else{results <- object}
+  if(!object$info$univar){
+    sigmainv <- tsigmainvup(p=ncol(object$x),G=results$G,sigma=results$parameters$sigma)
+    delta <- deltaup(x=newdata, mug=results$parameters$mean, sigma=results$parameters$sigma, sigmainv=sigmainv,
+                     G=results$G, n=nrow(newdata), object$info$univar)
+  }
+  else{
+    delta <- deltaup(x=newdata, mug=results$parameters$mean, sigma=results$parameters$sigma, sigmainv=sigmainv,
+                     G=results$G, n=nrow(newdata), object$info$univar)
+  }
+   
+  newz <- tzupdate(x=newdata, G=results$G, pig=results$parameters$pig, dhfgs78=results$parameters$df, p=ncol(object$x), mug=results$parameters$mean, sigmainv=NULL, n=nrow(newdata),
+                   sigma=results$parameters$sigma, clas=0, kno=NULL, known=NULL, unkno=NULL, univar=object$info$univar, delta=delta, gauss=object$info$gauss, cycle=NULL)
+  store <- list(fuzzy=newz, classification=apply(newz,1,which.max))
+  store
 }

@@ -113,7 +113,7 @@ Also note that for G=1, several models are equivalent (for example, UUUU and CCC
 %% ...
 \item{x}{Data used for clustering/classification.}
 
-\item{index}{Indexing vector giving observations taken to be known (only available when \code{clas} is set greater than 0 or \code{training} is given). }
+\item{index}{Indexing vector giving observations taken to be known (only available when classification is performed). }
 
 \item{classification}{Vector of group classifications as determined by the BIC.}
 
