@@ -41,7 +41,7 @@ covwtC <- function(x, wt, center){
     rv <- .C("mycovwt", as.double(as.vector(x)), as.integer(dim(x)[1]), as.integer(dim(x)[2]), 
              as.double(wt),
              as.double(center), as.integer(length(center)), 
-             double((dim(x)[2]^2)))[[7]]
+             double((dim(x)[2]^2)), PACKAGE = "teigen")[[7]]
     dim(rv) <- c(dim(x)[2], dim(x)[2])
     rv
 }
@@ -55,7 +55,7 @@ maha <- function(x, cm, Sx){
        as.double(as.vector(x)), as.integer(dim(x)[2]), as.integer(dim(x)[1]),
        as.double(cm),
        as.double(as.vector(Sx)), as.integer(dim(Sx)[1]),
-       double(dim(x)[1]))[[7]]    
+       double(dim(x)[1]), PACKAGE="teigen")[[7]]    
 }
 
 deltaup <-
@@ -669,14 +669,18 @@ tagupdate <-
                 diag(ag[,,g]) <- dum2
             }
         }
-        for(g in 1:G){
+        if(all(is.finite(ag))){
+          for(g in 1:G){
             if(any(diag(ag[,,g]) <= sqrt(.Machine$double.eps))){
-                negdet <- TRUE
+              negdet <- TRUE
             }
+          }
         }
+        else{negdet <- TRUE}
         if(negdet){
-            ag <- FALSE
+          ag <- FALSE
         }
+        
         ag
     }
 
@@ -1018,8 +1022,8 @@ teigen <-
 
 teigen.EM <-
     function(x, zmatin, Gs=1:9, models="all", scale=TRUE, dfstart=50, clas=0, known=NULL, training=NULL, gauss=FALSE, 
-             dfupdate="approx", eps=c(0.001,0.1), verbose=TRUE, maxit=c(20,1000), convstyle = "aitkens", 
-             kno = NULL, ememargs = NULL, origknown = NULL){
+             dfupdate="approx", eps=c(0.001,0.1), verbose=TRUE, maxit=c(Inf,Inf), convstyle = "aitkens", 
+             kno = NULL, ememargs=list(25, 5, "UUUU", "hard"), origknown = NULL){
         if(verbose){
             backspace.amount <- estimateTime("init")[2]
         }
@@ -1423,9 +1427,15 @@ teigen.EM <-
                         sigmainv <- tsigmainvup(p,G,sigma)
                     }
                     delta <- deltaup(x,mug,sigma,sigmainv,G,n,univar)
-                    ft <- exp(tft(x,G,pig,dhfgs78,p,mug,sigmainv,n,sigma,univar,delta,gauss))
+                    lft <- tft(x,G,pig,dhfgs78,p,mug,sigmainv,n,sigma,univar,delta,gauss)
+                    ft <- exp(lft)
                     ft_den <- rowSums(ft)
-                    zmat <- ft/ft_den
+                    kcon <- -apply(lft,1,max)
+                    lft <- lft + kcon
+                    num <- exp(lft)
+                    zmat <- num/rowSums(num)
+                  
+                    
                     if(clas>0){
                         zmat <- unkno*zmat
                         for(i in 1:n){

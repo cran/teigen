@@ -1,3 +1,12 @@
+teigen version 2.2.2 2018-02-15
+- Fixed missed error-catch on some eigenvalue matrix updates
+- Registered native C routines
+- Added information in CITATION for JSS manuscript
+
+teigen version 2.2.1 2016-12-13 (not posted to CRAN)
+- Fixed default maxit to align with help file
+- Fixed default ememargs to align with help file
+
 teigen version 2.2.0 2016-12-06
 - Added predict S3 method and associated help file
 - Updated teigen function help file

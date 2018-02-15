@@ -1,13 +1,28 @@
 citHeader("To cite package 'teigen' in publications use:")
-     
-citEntry(entry="Manual",
-         title = "teigen: Model-based clustering and classification with the multivariate t-distribution",
-    	author = personList(person(given=c("Jeffrey", "L."), family="Andrews"),person(given=c("Paul", "D."), family="McNicholas")),
-    	year = "2015",
-    	note = "R package version 2",
-    	textVersion = "Andrews, J. L. & McNicholas, P. D. (2014). teigen: Model-based
-  clustering and classification with the multivariate t-distribution. R package version 2."
+
+bibentry(bibtype = "Article",
+  title        = "{teigen}: An {R} Package for Model-Based Clustering and Classification via the Multivariate $t$ Distribution",
+  author       = c(person(given = c("Jeffrey", "L."),
+                          family = "Andrews",
+                          email = "jeff.andrews@ubc.ca"),
+                   person(given = c("Jaymeson", "R."),
+                          family = "Wickins"),
+                   person(given = c("Nicholas", "M."),
+                          family = "Boers",
+                          email = "boersn@macewan.ca"),
+                   person(given = c("Paul", "D."),
+                          family = "McNicholas",
+                          email = "mcnicholas@math.mcmaster.ca")),
+  journal      = "Journal of Statistical Software",
+  year         = "2018",
+  volume       = "83",
+  number       = "7",
+  pages        = "1--32",
+  doi          = "10.18637/jss.v083.i07",
+
+  header       = "To cite teigen in publications use:"
 )
+
 
 
 citEntry(entry="Article",
